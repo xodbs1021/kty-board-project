@@ -90,4 +90,18 @@ public class ViewController {
         model.addAttribute("post", new PostResponse(postService.getPost(postId)));
         return "detail";
     }
+    /**
+     * 게시글 수정 페이지 이동
+     */
+    @GetMapping("/posts/{postId}/edit")
+    public String editPage(@PathVariable("postId") Long postId, Model model, HttpSession session) {
+        // 보안: 로그인 확인
+        if (session.getAttribute("loginMemberId") == null) return "redirect:/";
+
+        // 기존 게시글 데이터를 가져와서 모델에 담습니다. (조회수 안 오르는 getPost 사용)
+        Post post = postService.getPost(postId);
+        model.addAttribute("post", new PostResponse(post));
+
+        return "edit"; // edit.html 파일을 찾습니다.
+    }
 }

@@ -94,4 +94,22 @@ public class PostController {
         // 3. 목록으로 리다이렉트
         return "redirect:/board";
     }
+    /**
+     * [화면용] 게시글 수정 처리 (POST 방식)
+     */
+    @PostMapping("/{postId}/edit")
+    public String updatePost(@PathVariable("postId") Long postId,
+                             @RequestParam("title") String title,
+                             @RequestParam("content") String content,
+                             HttpSession session) {
+
+        // 1. 보안 체크
+        if (session.getAttribute("loginMemberId") == null) return "redirect:/";
+
+        // 2. 서비스 호출 (우리가 아까 만든 updatePost 메서드 실행)
+        postService.updatePost(postId, title, content);
+
+        // 3. 수정 완료 후 다시 상세 페이지로 이동
+        return "redirect:/posts/" + postId;
+    }
 }
