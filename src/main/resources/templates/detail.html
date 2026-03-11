@@ -12,8 +12,10 @@
         .comment-section { background-color: #fcfcfc; border-radius: 12px; padding: 20px; }
         .comment-item { border-bottom: 1px solid #f1f1f1; padding: 12px 5px; }
         .comment-item:last-child { border-bottom: none; }
-        .delete-btn { font-size: 0.8rem; text-decoration: none; color: #dc3545; background: none; border: none; padding: 0; }
-        .delete-btn:hover { text-decoration: underline; }
+        .action-link { font-size: 0.8rem; text-decoration: none; background: none; border: none; padding: 0; cursor: pointer; }
+        .delete-link { color: #dc3545; }
+        .edit-link { color: #ffc107; margin-right: 8px; }
+        .action-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body class="container">
@@ -55,11 +57,14 @@
                 <div class="d-flex justify-content-between align-items-start mb-1">
                     <strong class="text-dark" th:text="${comment.nickname}">댓글러</strong>
 
-                    <div th:if="${session.nickname == comment.nickname}">
+                    <div th:if="${session.nickname == comment.nickname}" class="d-flex">
+                        <button type="button" class="action-link edit-link"
+                                th:onclick="updateComment([[${comment.id}]], [[${post.id}]], [[${comment.content}]])">수정</button>
+
                         <form th:action="@{/api/comments/{id}/delete(id=${comment.id})}" method="post"
                               onsubmit="return confirm('이 댓글을 삭제하시겠습니까?');">
                             <input type="hidden" name="postId" th:value="${post.id}">
-                            <button type="submit" class="delete-btn">삭제</button>
+                            <button type="submit" class="action-link delete-link">삭제</button>
                         </form>
                     </div>
                 </div>
@@ -82,11 +87,49 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script th:inline="javascript">
+    // 뒤로가기 제어
     window.onload = function() {
         history.pushState(null, null, location.href);
         window.onpopstate = function(event) { location.href = '/board'; };
     };
+
+    /**
+     * 댓글 수정 실행 함수
+     */
+    function updateComment(commentId, postId, oldContent) {
+        const newContent = prompt("댓글 내용을 수정하세요:", oldContent);
+
+        // 아무것도 입력 안 하거나 취소 누르면 중단
+        if (newContent === null || newContent.trim() === "" || newContent === oldContent) {
+            return;
+        }
+
+        // 폼 동적 생성
+        const form = document.createElement('form');
+        form.method = 'POST';
+
+        // 🔥 주소 매핑 주의: 컨트롤러의 /api/comments + /{commentId}/edit 와 일치해야 함
+        form.action = '/api/comments/' + commentId + '/edit';
+
+        // 데이터 추가 (postId, content)
+        const postIdInput = document.createElement('input');
+        postIdInput.type = 'hidden';
+        postIdInput.name = 'postId';
+        postIdInput.value = postId;
+
+        const contentInput = document.createElement('input');
+        contentInput.type = 'hidden';
+        contentInput.name = 'content';
+        contentInput.value = newContent.trim();
+
+        form.appendChild(postIdInput);
+        form.appendChild(contentInput);
+        document.body.appendChild(form);
+
+        // 서버로 전송
+        form.submit();
+    }
 </script>
 </body>
 </html>
