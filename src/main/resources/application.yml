@@ -1,15 +1,14 @@
 spring:
   datasource:
-    # MySQL ??? ??? ?????? ?? (board_db?? ?????)
     url: jdbc:mysql://localhost:3306/board_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: 0371
+    password: "0371" 
 
   jpa:
     hibernate:
-      ddl-auto: update # ???? ??? ???? ????? ??
-    show-sql: true     // ???? SQL? ??? ???
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
