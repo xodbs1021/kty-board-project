@@ -110,6 +110,6 @@ public class PostController {
         postService.updatePost(postId, title, content);
 
         // 3. 수정 완료 후 다시 상세 페이지로 이동
-        return "redirect:/posts/" + postId;
+        return "redirect:/posts/" + postId + "/view";
     }
 }
