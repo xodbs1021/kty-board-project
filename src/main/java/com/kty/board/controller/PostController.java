@@ -1,10 +1,8 @@
 package com.kty.board.controller;
 
-import com.kty.board.domain.Comment;
 import com.kty.board.domain.Post;
 import com.kty.board.dto.PostCreateRequest;
 import com.kty.board.dto.PostResponse;
-import com.kty.board.repository.CommentRepository;
 import com.kty.board.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final PostService postService;
-    private final CommentRepository commentRepository;
 
     /**
      * [화면용] 게시글 작성 처리
@@ -34,13 +31,12 @@ public class PostController {
         Object memberIdObj = session.getAttribute("loginMemberId");
 
         if (memberIdObj == null) {
-            return "redirect:/"; // 로그인 안됐으면 로그인 페이지로
+            return "redirect:/";
         }
 
         Long loginMemberId = (Long) memberIdObj;
         postService.write(loginMemberId, title, content);
 
-        // 중요: 앞에 /를 붙여서 /api/posts/board가 아닌 /board로 가게 합니다.
         return "redirect:/board";
     }
 
@@ -56,14 +52,16 @@ public class PostController {
     }
 
     /**
-     * [API] 게시글 상세 조회
+     * [API] 게시글 상세 조회 (에러 지점 수정 완료)
      */
     @GetMapping("/{postId}")
     @ResponseBody
     public PostResponse getPostDetail(@PathVariable("postId") Long postId) {
+        // PostService.findOne에서 이미 댓글(comments)이 포함된 Post를 가져옵니다.
         Post post = postService.findOne(postId);
-        List<Comment> comments = commentRepository.findByPostId(postId);
-        return new PostResponse(post, comments);
+
+        // 생성자가 하나로 통합되었으므로 post만 인자로 넘깁니다.
+        return new PostResponse(post);
     }
 
     /**
