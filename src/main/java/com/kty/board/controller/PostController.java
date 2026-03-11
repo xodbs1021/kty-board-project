@@ -1,16 +1,21 @@
 package com.kty.board.controller;
-import org.springframework.http.ResponseEntity;
+
+import com.kty.board.domain.Comment;
+import com.kty.board.domain.Post;
 import com.kty.board.dto.PostCreateRequest;
 import com.kty.board.dto.PostResponse;
 import com.kty.board.repository.CommentRepository;
 import com.kty.board.service.PostService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller; // RestController에서 변경
 import org.springframework.web.bind.annotation.*;
-import com.kty.board.domain.Post;
-import com.kty.board.domain.Comment;
+
 import java.util.List;
 import java.util.stream.Collectors;
-@RestController
+
+@Controller // 화면 이동(redirect)을 위해 Controller 사용
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
@@ -18,39 +23,64 @@ public class PostController {
     private final PostService postService;
     private final CommentRepository commentRepository;
 
-    @PostMapping
-    public Long createPost(@RequestBody PostCreateRequest request) {
-        return postService.write(request.getMemberId(), request.getTitle(), request.getContent());
+    /**
+     * [화면용] 게시글 작성 처리
+     * write.html의 <form action="/api/posts/write" method="post">와 연결
+     */
+    @PostMapping("/write")
+    public String writePost(@RequestParam String title,
+                            @RequestParam String content,
+                            HttpSession session) {
+
+        Long loginMemberId = (Long) session.getAttribute("loginMemberId");
+
+        if (loginMemberId == null) {
+            return "redirect:/";
+        }
+
+        postService.write(loginMemberId, title, content);
+        return "redirect:/board"; // 저장 후 게시판 목록으로 이동
     }
+
+    /**
+     * [API] 게시글 목록 조회
+     */
     @GetMapping
+    @ResponseBody // JSON 반환을 위해 추가
     public List<PostResponse> getPosts() {
         return postService.findPosts().stream()
-                .map(post -> new PostResponse(post)) // 이 부분을 람다식으로 변경!
+                .map(PostResponse::new)
                 .collect(Collectors.toList());
     }
-    // PostController.java 안에 추가
 
-    // 게시글 수정
+    /**
+     * [API] 게시글 상세 조회
+     */
+    @GetMapping("/{postId}")
+    @ResponseBody
+    public PostResponse getPostDetail(@PathVariable Long postId) {
+        Post post = postService.findOne(postId);
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        return new PostResponse(post, comments);
+    }
+
+    /**
+     * [API] 게시글 수정
+     */
     @PatchMapping("/{postId}")
+    @ResponseBody
     public ResponseEntity<String> update(@PathVariable Long postId, @RequestBody PostCreateRequest request) {
         postService.updatePost(postId, request.getTitle(), request.getContent());
         return ResponseEntity.ok("게시글 수정 완료");
     }
 
-    // 게시글 삭제
+    /**
+     * [API] 게시글 삭제
+     */
     @DeleteMapping("/{postId}")
+    @ResponseBody
     public ResponseEntity<String> delete(@PathVariable Long postId) {
         postService.deletePost(postId);
         return ResponseEntity.ok("게시글 삭제 완료");
-    }
-    @GetMapping("/{postId}")
-    public PostResponse getPostDetail(@PathVariable Long postId) {
-        // 1. 게시글 조회
-        Post post = postService.findOne(postId);
-
-        // 2. 해당 게시글의 댓글들 조회 (CommentRepository에 만들어둔 기능 활용)
-        List<Comment> comments = commentRepository.findByPostId(postId);
-
-        return new PostResponse(post, comments);
     }
 }

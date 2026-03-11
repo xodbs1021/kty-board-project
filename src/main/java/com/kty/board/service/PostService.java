@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // 기본적으로 조회용으로 설정 (성능 최적화)
 @RequiredArgsConstructor
 public class PostService {
 
@@ -23,35 +23,29 @@ public class PostService {
      */
     @Transactional
     public Long write(Long memberId, String title, String content) {
-        // 1. 작성자(Member) 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // 2. 게시글 객체 생성 (빌더 패턴)
         Post post = Post.builder()
                 .title(title)
                 .content(content)
-                .member(member) // 연관관계 설정
+                .member(member)
                 .build();
 
-        // 3. 저장
         postRepository.save(post);
         return post.getId();
     }
-    // PostService.java 안에 추가
 
     /**
-     * 게시글 수정
+     * 게시글 수정 (변경 감지 활용)
      */
     @Transactional
     public void updatePost(Long postId, String title, String content) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        // 변경 감지 기능을 이용하여 엔티티 정보 수정
         post.update(title, content);
     }
-
 
     /**
      * 게시글 삭제
@@ -65,19 +59,21 @@ public class PostService {
     }
 
     /**
+     * 단건 조회 (조회수 증가 포함)
+     */
+    @Transactional // 조회가 아닌 '수정(조회수)'을 포함하므로 @Transactional을 별도로 붙임
+    public Post findOne(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        post.addViewCount(); // 조회수 증가 (Dirty Checking)
+        return post;
+    }
+
+    /**
      * 전체 게시글 조회
      */
     public List<Post> findPosts() {
         return postRepository.findAll();
     }
-    // PostService.java에 추가
-    @Transactional // 조회가 아닌 수정을 포함하므로 ReadOnly를 끕니다.
-    public Post findOne(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
-        post.addViewCount(); // 조회수 증가 (Dirty Checking 활용)
-        return post;
-    }
-
 }
