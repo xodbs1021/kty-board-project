@@ -45,4 +45,9 @@ public class MemberController {
 
         return "redirect:/board"; // 로그인 성공 시 게시판으로 이동
     }
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // 세션 무효화 (모든 정보 삭제)
+        return "redirect:/";
+    }
 }
