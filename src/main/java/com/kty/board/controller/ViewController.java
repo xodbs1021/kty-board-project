@@ -1,5 +1,6 @@
 package com.kty.board.controller;
 
+import com.kty.board.domain.Post;
 import com.kty.board.dto.PostResponse;
 import com.kty.board.service.PostService;
 import jakarta.servlet.http.HttpSession;
