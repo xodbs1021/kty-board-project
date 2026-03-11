@@ -9,8 +9,9 @@ Java Spring Boot를 활용한 웹 백엔드 게시판 프로젝트입니다.
 * **Framework:** Spring Boot 4.0.3
 * **Language:** Java 21
 * **Build Tool:** Gradle
+* **Database:** MySQL 9.6.0 (Production), H2 (Development)
+* **ORM:** Spring Data JPA (Hibernate)
 * **View Engine:** Thymeleaf, Bootstrap 5
-* **Persistence:** Spring Data JPA, H2 (In-memory) -> *MySQL 연동 예정*
 * **Lombok:** Boilerplate 코드 최소화
 
 ---
@@ -33,9 +34,10 @@ Java Spring Boot를 활용한 웹 백엔드 게시판 프로젝트입니다.
 * **양방향 연관관계(@OneToMany):** 게시글 삭제 시 관련 댓글 자동 삭제 (Cascade)
 * 작성 후 부드러운 화면 전환을 위한 Redirect 처리
 
-### 4. 사용자 경험(UX) 최적화
+### 4. 아키텍처 및 UX 최적화
+* **Layered Architecture:** Controller - Service - Repository - Domain(Entity) 구조 준수
+* **DTO Pattern:** 데이터 보호 및 전송 효율을 위해 Request/Response DTO 분리
 * **History Control:** 댓글 등록 후 '뒤로 가기' 시 이전 데이터 잔상이 남지 않도록 브라우저 히스토리 제어 (JavaScript)
-* Bootstrap 5 기반의 깔끔하고 현대적인 반응형 UI 디자인
 
 ---
 
@@ -49,14 +51,13 @@ Java Spring Boot를 활용한 웹 백엔드 게시판 프로젝트입니다.
 * **원인:** API 컨트롤러(`@ResponseBody`) 주소로 링크가 걸려 있어 순수 데이터만 출력됨.
 * **해결:** View 전용 컨트롤러를 분리하고 Thymeleaf 템플릿 주소로 링크 수정.
 
-### ❓ 뒤로 가기 시 댓글 데이터 잔상 문제
-* **원인:** 댓글 등록 후 리다이렉트 시 브라우저 히스토리에 여러 단계의 상세 페이지 주소가 쌓임.
-* **해결:** 상세 페이지 로드 시 `history.pushState`와 `popstate` 이벤트를 활용해 뒤로 가기 시 즉시 목록으로 탈출하도록 UX 개선.
+### ❓ MySQL 연동 이슈 (v9.6.0)
+* **내용:** 최신 MySQL 9.6.0 환경에서 `application.yml` 설정을 통해 로컬 DB 연동 및 테이블 자동 생성 확인.
 
 ---
 
 ## 🚀 How to Run
 1. 해당 리포지토리 클론
-2. `board-project` 폴더 오픈
-3. Gradle 빌드 후 `BoardApplication` 실행
+2. Gradle 빌드 후 `BoardApplication` 실행
+3. MySQL 서버 실행 및 `board_db` 생성 필수
 4. 브라우저에서 `localhost:8080` 접속
