@@ -1,5 +1,5 @@
 package com.kty.board.controller;
-
+import org.springframework.http.ResponseEntity;
 import com.kty.board.dto.PostCreateRequest;
 import com.kty.board.dto.PostResponse;
 import com.kty.board.repository.CommentRepository;
@@ -27,6 +27,21 @@ public class PostController {
         return postService.findPosts().stream()
                 .map(post -> new PostResponse(post)) // 이 부분을 람다식으로 변경!
                 .collect(Collectors.toList());
+    }
+    // PostController.java 안에 추가
+
+    // 게시글 수정
+    @PatchMapping("/{postId}")
+    public ResponseEntity<String> update(@PathVariable Long postId, @RequestBody PostCreateRequest request) {
+        postService.updatePost(postId, request.getTitle(), request.getContent());
+        return ResponseEntity.ok("게시글 수정 완료");
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<String> delete(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.ok("게시글 삭제 완료");
     }
     @GetMapping("/{postId}")
     public PostResponse getPostDetail(@PathVariable Long postId) {

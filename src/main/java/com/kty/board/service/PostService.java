@@ -38,6 +38,30 @@ public class PostService {
         postRepository.save(post);
         return post.getId();
     }
+    // PostService.java 안에 추가
+
+    /**
+     * 게시글 수정
+     */
+    @Transactional
+    public void updatePost(Long postId, String title, String content) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        // 변경 감지 기능을 이용하여 엔티티 정보 수정
+        post.update(title, content);
+    }
+
+    /**
+     * 게시글 삭제
+     */
+    @Transactional
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        postRepository.delete(post);
+    }
 
     /**
      * 전체 게시글 조회

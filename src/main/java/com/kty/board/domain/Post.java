@@ -33,4 +33,9 @@ public class Post {
         this.content = content;
         this.member = member;
     }
+    // Post.java 안에 추가
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
