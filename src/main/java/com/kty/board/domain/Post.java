@@ -22,6 +22,12 @@ public class Post {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    private int viewCount = 0;
+
+    // 조회수 증가 메서드 추가
+    public void addViewCount() {
+        this.viewCount++;
+    }
     // 작성자와의 연관관계 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

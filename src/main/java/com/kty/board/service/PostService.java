@@ -52,6 +52,7 @@ public class PostService {
         post.update(title, content);
     }
 
+
     /**
      * 게시글 삭제
      */
@@ -70,8 +71,13 @@ public class PostService {
         return postRepository.findAll();
     }
     // PostService.java에 추가
+    @Transactional // 조회가 아닌 수정을 포함하므로 ReadOnly를 끕니다.
     public Post findOne(Long postId) {
-        return postRepository.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        post.addViewCount(); // 조회수 증가 (Dirty Checking 활용)
+        return post;
     }
+
 }

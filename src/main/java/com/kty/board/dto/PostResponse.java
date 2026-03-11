@@ -14,14 +14,17 @@ public class PostResponse {
     private String content;
     private String authorNickname;
     private List<CommentResponse> comments;
+    private int viewCount;
 
-    // 1. 목록 조회용 생성자 (게시글 정보만!)
+
     public PostResponse(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.authorNickname = post.getMember().getNickname();
+        this.viewCount = post.getViewCount();
     }
+
 
     // 2. 상세 조회용 생성자 (댓글 리스트 포함!)
     public PostResponse(Post post, List<Comment> comments) {
@@ -29,6 +32,7 @@ public class PostResponse {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.authorNickname = post.getMember().getNickname();
+        this.viewCount = post.getViewCount();
         this.comments = comments.stream()
                 .map(CommentResponse::new)
                 .collect(Collectors.toList());
