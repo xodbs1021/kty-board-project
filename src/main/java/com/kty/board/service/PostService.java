@@ -8,23 +8,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.List; // 👈 1. util 패키지 확인
 
 @Service
-@Transactional(readOnly = true) // 기본적으로 조회용으로 설정 (성능 최적화)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    /**
-     * 게시글 작성
-     */
+    public List<Post> findPosts() {
+        // 2. 이제 Incompatible types 에러가 사라집니다.
+        return postRepository.findAllByOrderByIdDesc();
+    }
+
     @Transactional
     public Long write(Long memberId, String title, String content) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
         Post post = Post.builder()
                 .title(title)
@@ -32,57 +34,17 @@ public class PostService {
                 .member(member)
                 .build();
 
-        postRepository.save(post);
-        return post.getId();
+        return postRepository.save(post).getId();
     }
 
-    /**
-     * 게시글 수정 (변경 감지 활용)
-     */
-    @Transactional
-    public void updatePost(Long postId, String title, String content) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
-        post.update(title, content);
-    }
-
-    /**
-     * 게시글 삭제
-     */
-    @Transactional
-    public void deletePost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
-        postRepository.delete(post);
-    }
-
-    /**
-     * 게시글 상세 조회 (조회수 증가 O)
-     * 게시판 목록에서 제목을 클릭했을 때만 사용합니다.
-     */
     @Transactional
     public Post findOne(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
-        post.addViewCount(); // 조회수 증가
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.addViewCount();
         return post;
     }
 
-    /**
-     * 전체 게시글 조회
-     */
-    public List<Post> findPosts() {
-        return postRepository.findAll();
-    }
-    /**
-     * 단순 게시글 조회 (조회수 증가 X)
-     * 댓글 등록 후 리다이렉트될 때 사용합니다.
-     */
     public Post getPost(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        return postRepository.findById(postId).orElseThrow();
     }
 }
