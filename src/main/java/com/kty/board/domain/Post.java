@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,10 +27,11 @@ public class Post {
 
     private int viewCount = 0;
 
-    // 조회수 증가 메서드 추가
-    public void addViewCount() {
-        this.viewCount++;
-    }
+    // 1. 댓글과의 연관관계 추가 (1:N)
+    // cascade = CascadeType.ALL을 넣으면 게시글 삭제 시 댓글도 같이 삭제됩니다.
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     // 작성자와의 연관관계 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -39,7 +43,13 @@ public class Post {
         this.content = content;
         this.member = member;
     }
-    // Post.java 안에 추가
+
+    // 조회수 증가 메서드
+    public void addViewCount() {
+        this.viewCount++;
+    }
+
+    // 게시글 수정 메서드
     public void update(String title, String content) {
         this.title = title;
         this.content = content;

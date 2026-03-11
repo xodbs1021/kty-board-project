@@ -7,11 +7,11 @@ import lombok.Getter;
 public class CommentResponse {
     private Long id;
     private String content;
-    private String authorNickname; // 댓글 작성자 닉네임
+    private String nickname;
 
     public CommentResponse(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
-        this.authorNickname = comment.getMember().getNickname();
+        this.nickname = comment.getMember().getNickname();
     }
 }
