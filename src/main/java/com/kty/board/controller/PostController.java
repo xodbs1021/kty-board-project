@@ -83,4 +83,15 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.ok("게시글 삭제 완료");
     }
+    @PostMapping("/{postId}/delete")
+    public String deletePost(@PathVariable("postId") Long postId, HttpSession session) {
+        // 1. 보안 체크 (로그인 확인)
+        if (session.getAttribute("loginMemberId") == null) return "redirect:/";
+
+        // 2. 삭제 서비스 호출
+        postService.deletePost(postId);
+
+        // 3. 목록으로 리다이렉트
+        return "redirect:/board";
+    }
 }

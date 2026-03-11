@@ -29,9 +29,7 @@
         </div>
     </div>
 
-    <div class="content-area" th:text="${post.content}">
-        내용이 들어가는 자리입니다.
-    </div>
+    <div class="content-area" th:text="${post.content}">내용이 들어가는 자리입니다.</div>
 
     <hr class="my-5">
 
@@ -47,9 +45,7 @@
         </form>
 
         <div class="list-group list-group-flush">
-            <div th:if="${#lists.isEmpty(post.comments)}" class="text-center py-4 text-muted">
-                아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
-            </div>
+            <div th:if="${#lists.isEmpty(post.comments)}" class="text-center py-4 text-muted">아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!</div>
             <div th:each="comment : ${post.comments}" class="comment-item">
                 <div class="d-flex justify-content-between mb-1">
                     <strong class="text-dark" th:text="${comment.nickname}">댓글러</strong>
@@ -60,27 +56,23 @@
     </div>
 
     <div class="d-flex justify-content-between mt-5 pt-3 border-top">
-        <a href="/board" class="btn btn-outline-secondary px-4">
-            <i class="bi bi-list"></i> 목록으로
-        </a>
-        <div th:if="${session.nickname == post.nickname}">
-            <button class="btn btn-outline-warning btn-sm">수정</button>
-            <button class="btn btn-outline-danger btn-sm">삭제</button>
+        <a href="/board" class="btn btn-outline-secondary px-4"><i class="bi bi-list"></i> 목록으로</a>
+
+        <div th:if="${session.nickname == post.nickname}" class="d-flex gap-2">
+            <a th:href="@{/posts/{id}/edit(id=${post.id})}" class="btn btn-outline-warning btn-sm">수정</a>
+
+            <form th:action="@{/api/posts/{id}/delete(id=${post.id})}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
+            </form>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 페이지가 로드될 때 실행
     window.onload = function() {
-        // 현재 페이지의 상태를 히스토리에 추가하여 '뒤로 가기'를 눌렀을 때 이벤트를 가로챕니다.
         history.pushState(null, null, location.href);
-
-        window.onpopstate = function(event) {
-            // 사용자가 뒤로 가기를 누르면 무조건 게시판 목록으로 이동시킵니다.
-            location.href = '/board';
-        };
+        window.onpopstate = function(event) { location.href = '/board'; };
     };
 </script>
 </body>

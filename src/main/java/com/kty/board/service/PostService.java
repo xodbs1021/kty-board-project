@@ -47,4 +47,27 @@ public class PostService {
     public Post getPost(Long postId) {
         return postRepository.findById(postId).orElseThrow();
     }
+    // PostService.java 에 추가하세요
+
+    /**
+     * 게시글 수정 로직
+     */
+    @Transactional
+    public void updatePost(Long postId, String title, String content) {
+        // 1. 수정할 게시글을 창고(DB)에서 찾아옵니다.
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+
+        // 2. 찾아온 게시글 객체의 내용을 새로운 제목과 내용으로 바꿉니다. (Dirty Checking 이용)
+        post.update(title, content);
+    }
+
+    /**
+     * 게시글 삭제 로직
+     */
+    @Transactional
+    public void deletePost(Long postId) {
+        // 1. 삭제할 게시글이 있는지 확인하고 삭제합니다.
+        postRepository.deleteById(postId);
+    }
 }
