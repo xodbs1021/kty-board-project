@@ -2,43 +2,74 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>KTY Board - 상세보기</title>
+    <title>KTY Board - 게시글 상세보기</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding-top: 50px; }
-        .detail-container { max-width: 800px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .content-area { min-height: 300px; white-space: pre-wrap; border-top: 1px solid #eee; padding-top: 20px; }
+        body { background-color: #f8f9fa; padding-top: 50px; padding-bottom: 50px; }
+        .detail-container { max-width: 850px; background: white; padding: 45px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .content-area { min-height: 250px; white-space: pre-wrap; padding: 25px 0; font-size: 1.1rem; line-height: 1.6; color: #333; }
+        .comment-section { background-color: #fcfcfc; border-radius: 12px; padding: 20px; }
+        .comment-item { border-bottom: 1px solid #f1f1f1; padding: 12px 5px; }
+        .comment-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="container">
 <div class="detail-container mx-auto">
-    <div class="mb-4">
-        <h2 class="fw-bold" th:text="${post.title}">게시글 제목</h2>
-        <div class="text-muted small d-flex justify-content-between">
-            <span>작성자: <span th:text="${post.nickname}" class="fw-bold text-dark">kty</span></span>
-            <span>조회수: <span th:text="${post.viewCount}">0</span></span>
+    <div class="border-bottom pb-3 mb-4">
+        <h2 class="fw-bold text-dark mb-3" th:text="${post.title}">게시글 제목</h2>
+        <div class="d-flex justify-content-between align-items-center text-muted">
+            <div>
+                <span class="badge bg-primary me-2">작성자</span>
+                <span th:text="${post.nickname}" class="fw-bold text-dark">kty</span>
+            </div>
+            <div>
+                <span class="me-3">👀 조회수 <strong th:text="${post.viewCount}">0</strong></span>
+                <span>📅 게시글 ID: <strong th:text="${post.id}">1</strong></span>
+            </div>
         </div>
     </div>
 
-    <div class="content-area mb-5" th:text="${post.content}">
+    <div class="content-area" th:text="${post.content}">
         내용이 들어가는 자리입니다.
     </div>
 
-    <hr>
+    <hr class="my-5">
 
-    <div class="mt-4">
-        <h5>💬 댓글 <span class="badge bg-secondary" th:text="${post.comments != null ? post.comments.size() : 0}">0</span></h5>
-        <ul class="list-group list-group-flush mt-3">
-            <li th:each="comment : ${post.comments}" class="list-group-item">
-                <strong th:text="${comment.nickname}">댓글러</strong>:
-                <span th:text="${comment.content}">댓글 내용입니다.</span>
-            </li>
-        </ul>
+    <div class="comment-section">
+        <h5 class="fw-bold mb-4">💬 댓글 <span class="text-primary" th:text="${post.comments != null ? post.comments.size() : 0}">0</span>개</h5>
+
+        <form action="/api/comments" method="post" class="mb-4">
+            <input type="hidden" name="postId" th:value="${post.id}">
+            <div class="input-group shadow-sm">
+                <textarea name="content" class="form-control" rows="2" placeholder="댓글을 입력해 주세요." required></textarea>
+                <button type="submit" class="btn btn-primary px-4">등록</button>
+            </div>
+        </form>
+
+        <div class="list-group list-group-flush">
+            <div th:if="${#lists.isEmpty(post.comments)}" class="text-center py-4 text-muted">
+                아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
+            </div>
+            <div th:each="comment : ${post.comments}" class="comment-item">
+                <div class="d-flex justify-content-between mb-1">
+                    <strong class="text-dark" th:text="${comment.nickname}">댓글러</strong>
+                </div>
+                <div class="text-secondary" th:text="${comment.content}">댓글 내용입니다.</div>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex justify-content-end mt-4">
-        <a href="/board" class="btn btn-outline-primary px-4">목록으로</a>
+    <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+        <a href="/board" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-list"></i> 목록으로
+        </a>
+        <div th:if="${session.nickname == post.nickname}">
+            <button class="btn btn-outline-warning btn-sm">수정</button>
+            <button class="btn btn-outline-danger btn-sm">삭제</button>
+        </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

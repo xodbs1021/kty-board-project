@@ -19,13 +19,20 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
+    /**
+     * 댓글 작성 (이 메서드 하나로 통합합니다)
+     */
     @Transactional
     public Long writeComment(Long postId, Long memberId, String content) {
+        // 1. 게시글 조회 (없으면 에러)
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+
+        // 2. 작성자 조회 (없으면 에러)
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
+        // 3. 댓글 생성 및 저장
         Comment comment = Comment.builder()
                 .content(content)
                 .post(post)
