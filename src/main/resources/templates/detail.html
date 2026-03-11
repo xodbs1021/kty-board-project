@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>KTY Board - 게시글 상세보기</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         body { background-color: #f8f9fa; padding-top: 50px; padding-bottom: 50px; }
         .detail-container { max-width: 850px; background: white; padding: 45px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -11,6 +12,8 @@
         .comment-section { background-color: #fcfcfc; border-radius: 12px; padding: 20px; }
         .comment-item { border-bottom: 1px solid #f1f1f1; padding: 12px 5px; }
         .comment-item:last-child { border-bottom: none; }
+        .delete-btn { font-size: 0.8rem; text-decoration: none; color: #dc3545; background: none; border: none; padding: 0; }
+        .delete-btn:hover { text-decoration: underline; }
     </style>
 </head>
 <body class="container">
@@ -45,10 +48,20 @@
         </form>
 
         <div class="list-group list-group-flush">
-            <div th:if="${#lists.isEmpty(post.comments)}" class="text-center py-4 text-muted">아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!</div>
+            <div th:if="${#lists.isEmpty(post.comments)}" class="text-center py-4 text-muted">
+                아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
+            </div>
             <div th:each="comment : ${post.comments}" class="comment-item">
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex justify-content-between align-items-start mb-1">
                     <strong class="text-dark" th:text="${comment.nickname}">댓글러</strong>
+
+                    <div th:if="${session.nickname == comment.nickname}">
+                        <form th:action="@{/api/comments/{id}/delete(id=${comment.id})}" method="post"
+                              onsubmit="return confirm('이 댓글을 삭제하시겠습니까?');">
+                            <input type="hidden" name="postId" th:value="${post.id}">
+                            <button type="submit" class="delete-btn">삭제</button>
+                        </form>
+                    </div>
                 </div>
                 <div class="text-secondary" th:text="${comment.content}">댓글 내용입니다.</div>
             </div>

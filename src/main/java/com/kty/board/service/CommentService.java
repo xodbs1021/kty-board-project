@@ -42,4 +42,16 @@ public class CommentService {
         commentRepository.save(comment);
         return comment.getId();
     }
+    @Transactional
+    public void deleteComment(Long commentId, String nickname) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 없습니다."));
+
+        // 본인 확인 로직 🔥
+        if (!comment.getNickname().equals(nickname)) {
+            throw new RuntimeException("본인의 댓글만 삭제할 수 있습니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
 }
