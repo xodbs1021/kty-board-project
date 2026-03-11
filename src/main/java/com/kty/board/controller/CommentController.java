@@ -24,19 +24,12 @@ public class CommentController {
                                @RequestParam("content") String content,
                                HttpSession session) {
 
-        // 1. 세션에서 로그인한 사용자 ID 가져오기
         Long loginMemberId = (Long) session.getAttribute("loginMemberId");
+        if (loginMemberId == null) return "redirect:/";
 
-        // 2. 비로그인 사용자는 로그인 페이지로 리다이렉트
-        if (loginMemberId == null) {
-            return "redirect:/";
-        }
-
-        // 3. 댓글 저장 서비스 호출 (메서드 명: writeComment 확인)
         commentService.writeComment(postId, loginMemberId, content);
 
-        // 4. 완료 후 해당 게시글 상세 페이지로 리다이렉트
-        // 주의: 앞에 /를 붙여야 /api/comments/posts/1이 아닌 /posts/1로 이동합니다.
-        return "redirect:/posts/" + postId;
+        // /view가 붙은 주소로 보내서 조회수 증가를 막습니다.
+        return "redirect:/posts/" + postId + "/view";
     }
 }

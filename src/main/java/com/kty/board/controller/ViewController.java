@@ -69,17 +69,25 @@ public class ViewController {
     }
 
     /**
-     * 5. 게시글 상세 페이지 이동 (추후 구현용 미리 추가)
-     * 이 주소는 board.html에서 th:href="@{/posts/{id}(id=${post.id})}"와 연결됩니다.
+     * [목록에서 클릭 시] 상세 페이지 (조회수 증가 O)
      */
     @GetMapping("/posts/{postId}")
     public String detailPage(@PathVariable("postId") Long postId, Model model, HttpSession session) {
-        if (session.getAttribute("loginMemberId") == null) {
-            return "redirect:/";
-        }
+        if (session.getAttribute("loginMemberId") == null) return "redirect:/";
 
-        // 상세 조회를 하면 PostService에서 조회수 증가 로직이 실행됩니다.
+        // findOne을 호출하여 조회수를 올립니다.
         model.addAttribute("post", new PostResponse(postService.findOne(postId)));
+        return "detail";
+    }
+    /**
+     * [댓글 등록 후 리다이렉트용] 상세 페이지 (조회수 증가 X)
+     */
+    @GetMapping("/posts/{postId}/view")
+    public String detailPageView(@PathVariable("postId") Long postId, Model model, HttpSession session) {
+        if (session.getAttribute("loginMemberId") == null) return "redirect:/";
+
+        // getPost를 호출하여 조회수를 올리지 않고 데이터만 가져옵니다.
+        model.addAttribute("post", new PostResponse(postService.getPost(postId)));
         return "detail";
     }
 }

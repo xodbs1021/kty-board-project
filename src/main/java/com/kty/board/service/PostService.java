@@ -59,14 +59,15 @@ public class PostService {
     }
 
     /**
-     * 단건 조회 (조회수 증가 포함)
+     * 게시글 상세 조회 (조회수 증가 O)
+     * 게시판 목록에서 제목을 클릭했을 때만 사용합니다.
      */
-    @Transactional // 조회가 아닌 '수정(조회수)'을 포함하므로 @Transactional을 별도로 붙임
+    @Transactional
     public Post findOne(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        post.addViewCount(); // 조회수 증가 (Dirty Checking)
+        post.addViewCount(); // 조회수 증가
         return post;
     }
 
@@ -75,5 +76,13 @@ public class PostService {
      */
     public List<Post> findPosts() {
         return postRepository.findAll();
+    }
+    /**
+     * 단순 게시글 조회 (조회수 증가 X)
+     * 댓글 등록 후 리다이렉트될 때 사용합니다.
+     */
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
     }
 }
