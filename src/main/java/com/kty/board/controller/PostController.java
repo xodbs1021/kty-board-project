@@ -9,13 +9,13 @@ import com.kty.board.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller; // RestController에서 변경
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller // 화면 이동(redirect)을 위해 Controller 사용
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
@@ -25,28 +25,30 @@ public class PostController {
 
     /**
      * [화면용] 게시글 작성 처리
-     * write.html의 <form action="/api/posts/write" method="post">와 연결
      */
     @PostMapping("/write")
-    public String writePost(@RequestParam String title,
-                            @RequestParam String content,
+    public String writePost(@RequestParam("title") String title,
+                            @RequestParam("content") String content,
                             HttpSession session) {
 
-        Long loginMemberId = (Long) session.getAttribute("loginMemberId");
+        Object memberIdObj = session.getAttribute("loginMemberId");
 
-        if (loginMemberId == null) {
-            return "redirect:/";
+        if (memberIdObj == null) {
+            return "redirect:/"; // 로그인 안됐으면 로그인 페이지로
         }
 
+        Long loginMemberId = (Long) memberIdObj;
         postService.write(loginMemberId, title, content);
-        return "redirect:/board"; // 저장 후 게시판 목록으로 이동
+
+        // 중요: 앞에 /를 붙여서 /api/posts/board가 아닌 /board로 가게 합니다.
+        return "redirect:/board";
     }
 
     /**
      * [API] 게시글 목록 조회
      */
     @GetMapping
-    @ResponseBody // JSON 반환을 위해 추가
+    @ResponseBody
     public List<PostResponse> getPosts() {
         return postService.findPosts().stream()
                 .map(PostResponse::new)
@@ -58,7 +60,7 @@ public class PostController {
      */
     @GetMapping("/{postId}")
     @ResponseBody
-    public PostResponse getPostDetail(@PathVariable Long postId) {
+    public PostResponse getPostDetail(@PathVariable("postId") Long postId) {
         Post post = postService.findOne(postId);
         List<Comment> comments = commentRepository.findByPostId(postId);
         return new PostResponse(post, comments);
@@ -69,7 +71,7 @@ public class PostController {
      */
     @PatchMapping("/{postId}")
     @ResponseBody
-    public ResponseEntity<String> update(@PathVariable Long postId, @RequestBody PostCreateRequest request) {
+    public ResponseEntity<String> update(@PathVariable("postId") Long postId, @RequestBody PostCreateRequest request) {
         postService.updatePost(postId, request.getTitle(), request.getContent());
         return ResponseEntity.ok("게시글 수정 완료");
     }
@@ -79,7 +81,7 @@ public class PostController {
      */
     @DeleteMapping("/{postId}")
     @ResponseBody
-    public ResponseEntity<String> delete(@PathVariable Long postId) {
+    public ResponseEntity<String> delete(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
         return ResponseEntity.ok("게시글 삭제 완료");
     }
