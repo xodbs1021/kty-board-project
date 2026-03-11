@@ -35,4 +35,8 @@ public class Comment {
         this.post = post;
         this.member = member;
     }
+    // Comment.java (domain) 내부에 추가
+    public void update(String content) {
+        this.content = content;
+    }
 }

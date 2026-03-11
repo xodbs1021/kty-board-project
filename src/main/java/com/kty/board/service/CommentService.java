@@ -54,4 +54,21 @@ public class CommentService {
 
         commentRepository.delete(comment);
     }
+    /**
+     * 댓글 수정 로직
+     */
+    @Transactional
+    public void updateComment(Long commentId, String newContent, String nickname) {
+        // 1. 수정할 댓글을 DB에서 찾아옵니다.
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+
+        // 2. [보안] 댓글 작성자와 현재 로그인한 사용자가 같은지 확인합니다.
+        if (!comment.getNickname().equals(nickname)) {
+            throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
+        }
+
+        // 3. 내용 수정 (Dirty Checking에 의해 트랜잭션 종료 시 DB에 반영됨)
+        comment.update(newContent);
+    }
 }
