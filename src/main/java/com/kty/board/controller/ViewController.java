@@ -41,4 +41,8 @@ public class ViewController {
         }
         return "write";
     }
+    @GetMapping("/join")
+    public String joinPage() {
+        return "join"; // templates/join.html을 엽니다.
+    }
 }

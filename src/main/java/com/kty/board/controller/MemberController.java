@@ -17,16 +17,20 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     @PostMapping("/join")
-    public ResponseEntity<String> join(@RequestBody @Valid MemberJoinRequest request) {
-        // DTO를 엔티티로 변환 (객체지향적 설계: 생성은 엔티티가 책임짐)
+    public String join(@RequestParam String email,
+                       @RequestParam String nickname,
+                       @RequestParam String password) {
+
+        // Member 객체 생성 (Builder 사용)
         Member member = Member.builder()
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .nickname(request.getNickname())
+                .email(email)
+                .nickname(nickname)
+                .password(password)
                 .build();
 
-        memberService.join(member);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        memberService.join(member); // 회원가입 서비스 호출
+
+        return "redirect:/"; // 회원가입 성공 후 로그인 페이지로 리다이렉트
     }
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password, HttpSession session) {
