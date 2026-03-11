@@ -45,4 +45,9 @@ public class PostService {
     public List<Post> findPosts() {
         return postRepository.findAll();
     }
+    // PostService.java에 추가
+    public Post findOne(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    }
 }
