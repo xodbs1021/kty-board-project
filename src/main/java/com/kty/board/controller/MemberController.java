@@ -6,6 +6,7 @@ import com.kty.board.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller; // RestController 대신 Controller 사용
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,16 +22,26 @@ public class MemberController {
     @PostMapping("/join")
     public String join(@RequestParam String email,
                        @RequestParam String nickname,
-                       @RequestParam String password) {
+                       @RequestParam String password,
+                       Model model) {
 
-        Member member = Member.builder()
-                .email(email)
-                .nickname(nickname)
-                .password(password)
-                .build();
+        try {
+            Member member = Member.builder()
+                    .email(email)
+                    .nickname(nickname)
+                    .password(password)
+                    .build();
 
-        memberService.join(member);
-        return "redirect:/"; // 가입 완료 후 로그인 페이지(루트)로 이동
+            memberService.join(member);
+            return "redirect:/";
+
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            // 가입 실패 시 입력했던 값을 다시 모델에 담아줍니다 (비밀번호는 보안상 제외)
+            model.addAttribute("email", email);
+            model.addAttribute("nickname", nickname);
+            return "join";
+        }
     }
 
     // 로그인 처리

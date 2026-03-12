@@ -15,11 +15,13 @@
     <form action="/join" method="post">
         <div class="mb-3">
             <label for="email" class="form-label">Email address</label>
-            <input type="email" name="email" class="form-control" id="email" placeholder="kty@sejong.ac.kr" required>
+            <input type="email" name="email" class="form-control" id="email"
+                   th:value="${email}" placeholder="kty@sejong.ac.kr" required>
         </div>
         <div class="mb-3">
             <label for="nickname" class="form-label">Nickname</label>
-            <input type="text" name="nickname" class="form-control" id="nickname" placeholder="닉네임을 입력하세요" required>
+            <input type="text" name="nickname" class="form-control" id="nickname"
+                   th:value="${nickname}" placeholder="닉네임을 입력하세요" required>
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
@@ -31,5 +33,15 @@
         <small>이미 계정이 있으신가요? <a href="/">로그인하러 가기</a></small>
     </div>
 </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const errorMessage = [[${errorMessage}]];
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+    /*]]>*/
+</script>
+
 </body>
 </html>
